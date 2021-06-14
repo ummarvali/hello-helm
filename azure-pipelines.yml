@@ -70,7 +70,7 @@ stages:
   
 - stage: Test     
   jobs:  
-  - job: Unit-Test
+  - job: Unit_Test
     container: node
     steps:
     - script: CI=true
@@ -78,7 +78,7 @@ stages:
   
 - stage:     
   jobs:  
-  - job: Sonnar-Scan
+  - job: Sonnar_Scan
     container: sonarscanner
     steps:
     - script: |
@@ -97,7 +97,7 @@ stages:
       
 - stage:     
   jobs:      
-  - job: Build-docker
+  - job: Build_docker
     container: kaniko
     steps:
     - script: |
@@ -109,7 +109,7 @@ stages:
       
 - stage:     
   jobs:      
-  - job: Image-scan-Clair
+  - job: Image_scan_Clair
     container: yair
     continueOnError: 'true'
     steps:
