@@ -6,6 +6,13 @@
 trigger:
 - master
 
+  paths:
+      include: 
+      - ummarvali/
+      - hello-helm/azure-pipelines.yml
+
+  
+
 pool:
   vmImage: ubuntu-latest
   
