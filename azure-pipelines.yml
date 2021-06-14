@@ -148,9 +148,9 @@ stages:
   
   
   
-- stage:     
+- stage: Openshitf
   jobs:      
-  - job: 'Deploy: To Openshift'
+  - job: Deploy_To_Openshift
     container: openshift-cli
     steps:
     - script: |
