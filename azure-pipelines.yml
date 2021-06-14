@@ -1,0 +1,220 @@
+# Node.js
+# Build a general Node.js project with npm.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+trigger:
+- master
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '10.x'
+  displayName: 'Install Node.js'
+
+- script: |
+    npm install
+    npm run build
+  displayName: 'npm install and build'
+
+
+
+  
+resources:
+  containers:
+  - name: jnlp
+    image: 'jenkins/jnlp-slave:4.3-4'
+    args: ['\$(JENKINS_SECRET)', '\$(JENKINS_NAME)']
+  - name: yair
+    image: us.icr.io/dc-tools/security/yair:1
+    command:
+    - cat
+    tty: true
+    imagePullPolicy: Always
+  - name: sonarscanner
+    image: sonarsource/sonar-scanner-cli:latest
+    command:
+    - cat
+    tty: true
+    imagePullPolicy: Always
+    securityContext: # https://github.com/GoogleContainerTools/kaniko/issues/681
+      runAsUser: 0
+      runAsGroup: 0
+  - name: node
+    image: node:14
+    command:
+    - cat
+    tty: true
+    imagePullPolicy: Always
+    securityContext: # https://github.com/GoogleContainerTools/kaniko/issues/681
+      runAsUser: 0
+      runAsGroup: 0
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug-1534f90c9330d40486136b2997e7972a79a69baf
+    imagePullPolicy: Always
+    command:
+    - cat
+    tty: true
+    securityContext: # https://github.com/GoogleContainerTools/kaniko/issues/681
+      runAsUser: 0
+      runAsGroup: 0
+  - name: openshift-cli
+    image: openshift/origin-cli:v3.11.0
+    command:
+    - cat
+    tty: true
+    securityContext: # https://github.com/GoogleContainerTools/kaniko/issues/681
+      runAsUser: 0
+      runAsGroup: 0
+   
+  volumes:
+  - name: regsecret
+    projected:
+      sources:
+      - secret:
+          name: regsecret
+          items:
+            - key: .dockerconfigjson
+              path: config.json
+  imagePullSecrets:
+  - name: oduregsecret
+  - name: regsecret
+  
+  
+  
+  
+variables:
+    K8S_DEPLOYMENT="${JOB_BASE_NAME}".toLowerCase()
+	POD_NAME ="nodejs_deployment"
+     
+     
+stages:
+- stage:     
+  jobs:
+  - job: build
+    container: npm
+    steps:
+    - script: npm install --only=prod
+    - script: npm install -D express jest
+    - script: npm install -D sonarqube-scanner jest-sonar-reporter supertest
+  
+- stage:     
+  jobs:  
+  - job: Unit Test
+    container: node
+    steps:
+    - script: CI=true
+    - script: npm run test
+  
+- stage:     
+  jobs:  
+  - job: Sonnar Scan
+    container: sonarscanner
+    steps:
+    - script: |
+        pwd
+        ls -ltr
+        mkdir .sonar .sonar/cache .scannerwork
+        chmod -R 777 .sonar
+        chmod -R 777 .scannerwork
+        export SONAR_USER_HOME=${CI_BUILDS_DIR}
+        sonar-scanner \
+        -Dsonar.host.url=${SONARQUBE_URL} \
+        -Dsonar.projectKey=${NAMESPACE}-${K8S_DEPLOYMENT} \
+        -Dsonar.sources=. \
+        -Dsonar.projectVersion=${CI_PIPELINE_IID} \
+        -Dsonar.exclusions=node_modules/** 
+      
+- stage:     
+  jobs:      
+  - job: Build docker
+    container: kaniko
+    steps:
+    - script: |
+        mkdir -p /kaniko/.docker
+        echo '{\"auths\":{\"'${DOCKER_URL}'\":{\"username\":\"'${REGISTRY_USERNAME}'\",\"password\":\"'${REGISTRY_PASSWORD}'\"}}}' > /kaniko/.docker/config.json
+        cat /kaniko/.docker/config.json
+        /kaniko/executor -f `pwd`/Dockerfile -c `pwd` --insecure --skip-tls-verify --cache=true --destination=${DOCKER_URL}/${DOCKER_IMAGE}:${DOCKER_TAG}
+      
+      
+- stage:     
+  jobs:      
+  - job: Image scan - Clair
+    container: yair
+    continueOnError: 'true'
+    steps:
+    - script: |
+        sh 'yair.py --clair ${CLAIR_URL} --registry ${REGISTRY_NAME} --username ${REGISTRY_USERNAME} --password ${REGISTRY_PASSWORD} --no-namespace ${DOCKER_IMAGE}:${DOCKER_TAG}'
+        sh 'wget https://github.com/optiopay/klar/releases/download/v2.4.0/klar-2.4.0-linux-amd64'
+	    sh 'mv klar-2.4.0-linux-amd64 klar'
+	    sh 'chmod 755 klar'
+	    sh 'export CLAIR_ADDR=${CLAIR_URL} && export DOCKER_PASSWORD=${REGISTRY_PASSWORD} && export DOCKER_USER=${REGISTRY_USERNAME} && ./klar ${DOCKER_URL}/${DOCKER_IMAGE}:${DOCKER_TAG}  '
+
+    
+    - script: |
+        sh 'ls -l && rm -rf $WORKSPACE/reports/clair && mkdir -p $WORKSPACE/reports/clair'
+           //         sh 'cp clair-results.json $WORKSPACE/reports/clair'
+
+
+
+           
+      
+ 
+- stage: 
+  condition:               
+               beforeOptions true
+               expression { env.SONARQUBE_URL }
+    
+  jobs:      
+  - job: Sonar Scan
+    container: sonarscanner
+    steps:
+    - script: |
+          sonar-scanner \
+		  -Dsonar.host.url=${SONARQUBE_URL} \
+		  -Dsonar.projectKey=${NAMESPACE}-${K8S_DEPLOYMENT} \
+		  -Dsonar.scm.provider=git \
+		  -Dsonar.coverageReportPaths=test-results.xml \
+       	      -Dsonar.sources=. \
+		  -Dsonar.projectVersion=${BRANCH}-${BUILD_NUMBER}
+  
+  
+  
+  
+  
+- stage:     
+  jobs:      
+  - job: 'Deploy: To Openshift'
+    container: openshift-cli
+    steps:
+    - script: |
+          oc login --server="${OCP_URL}" --token="${TOKEN}"
+          oc project ${NAMESPACE}
+          pwd
+          ls -ltr
+          oc create secret docker-registry docker-repo-cred \
+          --docker-server=${DOCKER_URL} \
+          --docker-username=${DOCKER_USERNAME} \
+          --docker-password=${DOCKER_PASSWORD} \
+          --docker-email=${DOCKER_PASSWORD} \
+          --namespace=${NAMESPACE} || true
+
+          sed -e "s~{REGISTRY_NAME}~$DOCKER_URL~g" \
+              -e "s~{DOCKER_IMAGE}~$DOCKER_IMAGE~g" \
+              -e "s~{DOCKER_TAG}~$DOCKER_TAG~g" \
+              -e "s~{K8S_DEPLOYMENT}~$K8S_DEPLOYMENT~g" \
+		          -e "s~{NAMESPACE}~$NAMESPACE~g"\
+              -e "s~{INGRESS_URL}~$INGRESS~g" -i devops/k8s/*.yml
+              
+          oc apply -f devops/k8s/ --namespace="${NAMESPACE}" || true
+	        oc create route edge --service=${K8S_DEPLOYMENT}-svc --hostname=$K8S_DEPLOYMENT.$INGRESS ||true
+          oc get route ${K8S_DEPLOYMENT}-svc || true
+          oc wait --for=condition=available --timeout=120s deployment/${K8S_DEPLOYMENT} --namespace="${NAMESPACE}" || true
+          
+          
+          
+          
+          
