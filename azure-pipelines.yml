@@ -131,10 +131,6 @@ stages:
       
  
 - stage: 
-  condition:               
-               beforeOptions true
-               expression { env.SONARQUBE_URL }
-    
   jobs:      
   - job: Sonar Scan
     container: sonarscanner
