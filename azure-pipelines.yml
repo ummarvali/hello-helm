@@ -206,11 +206,11 @@ stages:
               -e "s~{DOCKER_IMAGE}~$DOCKER_IMAGE~g" \
               -e "s~{DOCKER_TAG}~$DOCKER_TAG~g" \
               -e "s~{K8S_DEPLOYMENT}~$K8S_DEPLOYMENT~g" \
-		          -e "s~{NAMESPACE}~$NAMESPACE~g"\
+              -e "s~{NAMESPACE}~$NAMESPACE~g"\
               -e "s~{INGRESS_URL}~$INGRESS~g" -i devops/k8s/*.yml
               
           oc apply -f devops/k8s/ --namespace="${NAMESPACE}" || true
-	        oc create route edge --service=${K8S_DEPLOYMENT}-svc --hostname=$K8S_DEPLOYMENT.$INGRESS ||true
+          oc create route edge --service=${K8S_DEPLOYMENT}-svc --hostname=$K8S_DEPLOYMENT.$INGRESS ||true
           oc get route ${K8S_DEPLOYMENT}-svc || true
           oc wait --for=condition=available --timeout=120s deployment/${K8S_DEPLOYMENT} --namespace="${NAMESPACE}" || true
           
