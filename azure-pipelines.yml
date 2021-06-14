@@ -62,7 +62,7 @@ stages:
 - stage: Build
   jobs:
   - job: build
-    container: npm
+    container: node
     steps:
     - script: npm install --only=prod
     - script: npm install -D express jest
