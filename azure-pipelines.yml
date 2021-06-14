@@ -174,12 +174,12 @@ stages:
     steps:
     - script: |
           sonar-scanner \
-		  -Dsonar.host.url=${SONARQUBE_URL} \
-		  -Dsonar.projectKey=${NAMESPACE}-${K8S_DEPLOYMENT} \
-		  -Dsonar.scm.provider=git \
-		  -Dsonar.coverageReportPaths=test-results.xml \
-       	      -Dsonar.sources=. \
-		  -Dsonar.projectVersion=${BRANCH}-${BUILD_NUMBER}
+          -Dsonar.host.url=${SONARQUBE_URL} \
+          -Dsonar.projectKey=${NAMESPACE}-${K8S_DEPLOYMENT} \
+          -Dsonar.scm.provider=git \
+          -Dsonar.coverageReportPaths=test-results.xml \
+                -Dsonar.sources=. \
+          -Dsonar.projectVersion=${BRANCH}-${BUILD_NUMBER}
   
   
   
