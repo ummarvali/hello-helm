@@ -25,16 +25,16 @@ steps:
   
 resources:
   containers:
-  - name: jnlp
+  - container: jnlp
     image: 'jenkins/jnlp-slave:4.3-4'
     args: ['\$(JENKINS_SECRET)', '\$(JENKINS_NAME)']
-  - name: yair
+  - container: yair
     image: us.icr.io/dc-tools/security/yair:1
     command:
     - cat
     tty: true
     imagePullPolicy: Always
-  - name: sonarscanner
+  - container: sonarscanner
     image: sonarsource/sonar-scanner-cli:latest
     command:
     - cat
@@ -43,7 +43,7 @@ resources:
     securityContext: # https://github.com/GoogleContainerTools/kaniko/issues/681
       runAsUser: 0
       runAsGroup: 0
-  - name: node
+  - container: node
     image: node:14
     command:
     - cat
@@ -52,7 +52,7 @@ resources:
     securityContext: # https://github.com/GoogleContainerTools/kaniko/issues/681
       runAsUser: 0
       runAsGroup: 0
-  - name: kaniko
+  - container: kaniko
     image: gcr.io/kaniko-project/executor:debug-1534f90c9330d40486136b2997e7972a79a69baf
     imagePullPolicy: Always
     command:
@@ -61,7 +61,7 @@ resources:
     securityContext: # https://github.com/GoogleContainerTools/kaniko/issues/681
       runAsUser: 0
       runAsGroup: 0
-  - name: openshift-cli
+  - container: openshift-cli
     image: openshift/origin-cli:v3.11.0
     command:
     - cat
