@@ -71,13 +71,6 @@ resources:
       runAsGroup: 0
    
   
-  
-  
-  
-variables:
-    K8S_DEPLOYMENT="${JOB_BASE_NAME}".toLowerCase()
-    POD_NAME ="nodejs_deployment"
-     
      
 stages:
 - stage:     
