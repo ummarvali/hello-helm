@@ -59,7 +59,7 @@ resources:
   
      
 stages:
-- stage:Build
+- stage: Build
   jobs:
   - job: build
     container: npm
@@ -68,7 +68,7 @@ stages:
     - script: npm install -D express jest
     - script: npm install -D sonarqube-scanner jest-sonar-reporter supertest
   
-- stage:Test     
+- stage: Test     
   jobs:  
   - job: Unit-Test
     container: node
