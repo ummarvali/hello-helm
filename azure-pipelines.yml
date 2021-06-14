@@ -70,18 +70,6 @@ resources:
       runAsUser: 0
       runAsGroup: 0
    
-  volumes:
-  - name: regsecret
-    projected:
-      sources:
-      - secret:
-          name: regsecret
-          items:
-            - key: .dockerconfigjson
-              path: config.json
-  imagePullSecrets:
-  - name: oduregsecret
-  - name: regsecret
   
   
   
