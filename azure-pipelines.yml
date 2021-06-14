@@ -88,7 +88,7 @@ resources:
   
 variables:
     K8S_DEPLOYMENT="${JOB_BASE_NAME}".toLowerCase()
-	POD_NAME ="nodejs_deployment"
+	  POD_NAME ="nodejs_deployment"
      
      
 stages:
