@@ -19,8 +19,7 @@ pool:
 
 variables:
   SolutionName: 'Nodejs'
-  
-continueOnError: true  
+ 
 
 resources:
   containers:
@@ -74,7 +73,7 @@ stages:
     - script: npm install --only=prod
     - script: npm install -D express jest
     - script: npm install -D sonarqube-scanner jest-sonar-reporter supertest
-  
+    continueOnError: true  
 
 - stage: Test     
   jobs:  
