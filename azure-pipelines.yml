@@ -61,62 +61,68 @@ resources:
       runAsUser: 0
       runAsGroup: 0
    
-steps:
-- task: DockerInstaller@0
-  displayName: 'Install Docker 17.09.0-ce'  
+  
      
-jobs:
-- job: build
-  container: node
-  steps:
-  - script: npm install --only=prod
-  - script: npm install -D express jest
-  - script: npm install -D sonarqube-scanner jest-sonar-reporter supertest
+stages:
+- task: DockerInstaller@0
+  displayName: 'Install Docker 17.09.0-ce'
+
+- stage: Build
+  jobs:
+  - job: build
+    container: node
+    steps:
+    - script: npm install --only=prod
+    - script: npm install -D express jest
+    - script: npm install -D sonarqube-scanner jest-sonar-reporter supertest
   
-
-- job: Unit_Test
-  container: node
-  steps:
-  - script: CI=true
-  - script: npm run test
+- stage: Test     
+  jobs:  
+  - job: Unit_Test
+    container: node
+    steps:
+    - script: CI=true
+    - script: npm run test
   
-
-- job: Sonnar_Scan
-  container: sonarscanner
-  steps:
-  - script: |
-      pwd
-      ls -ltr
-      mkdir .sonar .sonar/cache .scannerwork
-      chmod -R 777 .sonar
-      chmod -R 777 .scannerwork
-      export SONAR_USER_HOME=${CI_BUILDS_DIR}
-      sonar-scanner \
-      -Dsonar.host.url=${SONARQUBE_URL} \
-      -Dsonar.projectKey=${NAMESPACE}-${K8S_DEPLOYMENT} \
-      -Dsonar.sources=. \
-      -Dsonar.projectVersion=${CI_PIPELINE_IID} \
-      -Dsonar.exclusions=node_modules/** 
+- stage:     
+  jobs:  
+  - job: Sonnar_Scan
+    container: sonarscanner
+    steps:
+    - script: |
+        pwd
+        ls -ltr
+        mkdir .sonar .sonar/cache .scannerwork
+        chmod -R 777 .sonar
+        chmod -R 777 .scannerwork
+        export SONAR_USER_HOME=${CI_BUILDS_DIR}
+        sonar-scanner \
+        -Dsonar.host.url=${SONARQUBE_URL} \
+        -Dsonar.projectKey=${NAMESPACE}-${K8S_DEPLOYMENT} \
+        -Dsonar.sources=. \
+        -Dsonar.projectVersion=${CI_PIPELINE_IID} \
+        -Dsonar.exclusions=node_modules/** 
       
-    
-- job: Build_docker
-  container: kaniko
-  steps:
-  - script: |
-      mkdir -p /kaniko/.docker
-      echo '{\"auths\":{\"'${DOCKER_URL}'\":{\"username\":\"'${REGISTRY_USERNAME}'\",\"password\":\"'${REGISTRY_PASSWORD}'\"}}}' > /kaniko/.docker/config.json
-      cat /kaniko/.docker/config.json
-      /kaniko/executor -f `pwd`/Dockerfile -c `pwd` --insecure --skip-tls-verify --cache=true --destination=${DOCKER_URL}/${DOCKER_IMAGE}:${DOCKER_TAG}
+- stage:     
+  jobs:      
+  - job: Build_docker
+    container: kaniko
+    steps:
+    - script: |
+        mkdir -p /kaniko/.docker
+        echo '{\"auths\":{\"'${DOCKER_URL}'\":{\"username\":\"'${REGISTRY_USERNAME}'\",\"password\":\"'${REGISTRY_PASSWORD}'\"}}}' > /kaniko/.docker/config.json
+        cat /kaniko/.docker/config.json
+        /kaniko/executor -f `pwd`/Dockerfile -c `pwd` --insecure --skip-tls-verify --cache=true --destination=${DOCKER_URL}/${DOCKER_IMAGE}:${DOCKER_TAG}
       
       
-
-           
       
-    
-- job: Sonar_Scan
-  container: sonarscanner
-  steps:
-  - script: |
+ 
+- stage: 
+  jobs:      
+  - job: Sonar_Scan
+    container: sonarscanner
+    steps:
+    - script: |
           sonar-scanner \
           -Dsonar.host.url=${SONARQUBE_URL} \
           -Dsonar.projectKey=${NAMESPACE}-${K8S_DEPLOYMENT} \
@@ -128,11 +134,13 @@ jobs:
   
   
   
-     
-- job: Deploy_To_Openshift
-  container: openshift-cli
-  steps:
-  - script: |
+  
+- stage: Openshitf
+  jobs:      
+  - job: Deploy_To_Openshift
+    container: openshift-cli
+    steps:
+    - script: |
           oc login --server="${OCP_URL}" --token="${TOKEN}"
           oc project ${NAMESPACE}
           pwd
