@@ -65,6 +65,7 @@ resources:
      
 stages:
 - stage: Build
+  continueOnError: true
   jobs:
   - job: build
     container: node
@@ -72,7 +73,7 @@ stages:
     - script: npm install --only=prod
     - script: npm install -D express jest
     - script: npm install -D sonarqube-scanner jest-sonar-reporter supertest
-  continueOnError: true
+  
 
 - stage: Test     
   jobs:  
@@ -82,7 +83,7 @@ stages:
     - script: CI=true
     - script: npm run test
   continueOnError: true
-  
+
 - stage:     
   jobs:  
   - job: Sonnar_Scan
