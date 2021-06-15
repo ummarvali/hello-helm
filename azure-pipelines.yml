@@ -15,7 +15,7 @@ trigger:
     - hello-helm/azure-pipelines.yml
 
 pool:
-  name: Azure Pipelines
+  name: vs2017-win2016
 
 variables:
   SolutionName: 'Nodejs'
