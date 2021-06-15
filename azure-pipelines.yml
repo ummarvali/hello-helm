@@ -15,7 +15,7 @@ trigger:
     - hello-helm/azure-pipelines.yml
 
 pool:
-  name: ubuntu-latest
+  name: Azure Pipelines
 
 variables:
   SolutionName: 'Nodejs'
