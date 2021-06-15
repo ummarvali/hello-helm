@@ -66,7 +66,6 @@ steps:
   displayName: 'Install Docker 17.09.0-ce'  
      
 
-jobs:
   - job: build
     container: node
     steps:
