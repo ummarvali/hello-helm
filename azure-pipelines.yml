@@ -65,7 +65,6 @@ resources:
      
 stages:
 - stage: Build
-  continueOnError: true
   jobs:
   - job: build
     container: node
