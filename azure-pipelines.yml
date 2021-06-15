@@ -150,9 +150,7 @@ jobs:
   
   
   
-  
-- stage: Openshitf
-  jobs:      
+      
   - job: Deploy_To_Openshift
     container: openshift-cli
     steps:
