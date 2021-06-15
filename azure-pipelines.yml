@@ -25,12 +25,6 @@ resources:
   - container: jnlp
     image: 'jenkins/jnlp-slave:4.3-4'
     args: ['\$(JENKINS_SECRET)', '\$(JENKINS_NAME)']
-  - container: yair
-    image: us.icr.io/dc-tools/security/yair:1
-    command:
-    - cat
-    tty: true
-    imagePullPolicy: Always
   - container: sonarscanner
     image: sonarsource/sonar-scanner-cli:latest
     command:
