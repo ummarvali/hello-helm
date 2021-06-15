@@ -27,8 +27,9 @@ variables:
 resources:
   containers:
   - container: jnlp
+    options: ['\$(JENKINS_SECRET)', '\$(JENKINS_NAME)']
     image: 'jenkins/jnlp-slave:4.3-4'
-    env: ['\$(JENKINS_SECRET)', '\$(JENKINS_NAME)']
+    
   - container: sonarscanner
     image: sonarsource/sonar-scanner-cli:latest
     command:
