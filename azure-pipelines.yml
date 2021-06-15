@@ -14,6 +14,8 @@ trigger:
     - ummarvali/
     - hello-helm/azure-pipelines.yml
 
+pr: none
+
 pool:
   name: Azure Pipelines
 
