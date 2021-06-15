@@ -66,8 +66,7 @@ steps:
   displayName: 'Install Docker 17.09.0-ce'  
      
 
-- stage: Build
-  jobs:
+jobs:
   - job: build
     container: node
     steps:
@@ -75,16 +74,14 @@ steps:
     - script: npm install -D express jest
     - script: npm install -D sonarqube-scanner jest-sonar-reporter supertest
   
-- stage: Test     
-  jobs:  
+
   - job: Unit_Test
     container: node
     steps:
     - script: CI=true
     - script: npm run test
   
-- stage:     
-  jobs:  
+
   - job: Sonnar_Scan
     container: sonarscanner
     steps:
@@ -102,8 +99,7 @@ steps:
         -Dsonar.projectVersion=${CI_PIPELINE_IID} \
         -Dsonar.exclusions=node_modules/** 
       
-- stage:     
-  jobs:      
+    
   - job: Build_docker
     container: kaniko
     steps:
@@ -117,9 +113,7 @@ steps:
 
            
       
- 
-- stage: 
-  jobs:      
+    
   - job: Sonar_Scan
     container: sonarscanner
     steps:
@@ -135,9 +129,7 @@ steps:
   
   
   
-  
-- stage: Openshitf
-  jobs:      
+     
   - job: Deploy_To_Openshift
     container: openshift-cli
     steps:
