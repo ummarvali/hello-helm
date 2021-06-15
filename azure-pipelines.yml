@@ -64,9 +64,6 @@ resources:
   
      
 stages:
-- task: DockerInstaller@0
-  displayName: 'Install Docker 17.09.0-ce'
-
 - stage: Build
   jobs:
   - job: build
@@ -75,7 +72,8 @@ stages:
     - script: npm install --only=prod
     - script: npm install -D express jest
     - script: npm install -D sonarqube-scanner jest-sonar-reporter supertest
-  
+  continueOnError: true
+
 - stage: Test     
   jobs:  
   - job: Unit_Test
@@ -83,6 +81,7 @@ stages:
     steps:
     - script: CI=true
     - script: npm run test
+  continueOnError: true
   
 - stage:     
   jobs:  
@@ -102,7 +101,8 @@ stages:
         -Dsonar.sources=. \
         -Dsonar.projectVersion=${CI_PIPELINE_IID} \
         -Dsonar.exclusions=node_modules/** 
-      
+  continueOnError: true
+
 - stage:     
   jobs:      
   - job: Build_docker
@@ -113,7 +113,7 @@ stages:
         echo '{\"auths\":{\"'${DOCKER_URL}'\":{\"username\":\"'${REGISTRY_USERNAME}'\",\"password\":\"'${REGISTRY_PASSWORD}'\"}}}' > /kaniko/.docker/config.json
         cat /kaniko/.docker/config.json
         /kaniko/executor -f `pwd`/Dockerfile -c `pwd` --insecure --skip-tls-verify --cache=true --destination=${DOCKER_URL}/${DOCKER_IMAGE}:${DOCKER_TAG}
-      
+  continueOnError: true  
       
       
  
@@ -130,7 +130,7 @@ stages:
           -Dsonar.coverageReportPaths=test-results.xml \
                 -Dsonar.sources=. \
           -Dsonar.projectVersion=${BRANCH}-${BUILD_NUMBER}
-  
+  continueOnError: true
   
   
   
