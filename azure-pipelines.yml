@@ -68,9 +68,7 @@ resources:
    
   
      
-stages:
-- stage: Build
-  jobs:
+jobs:
   - job: build
     container: node
     steps:
@@ -78,16 +76,14 @@ stages:
     - script: npm install -D express jest
     - script: npm install -D sonarqube-scanner jest-sonar-reporter supertest
   
-- stage: Test     
-  jobs:  
+
   - job: Unit_Test
     container: node
     steps:
     - script: CI=true
     - script: npm run test
   
-- stage:     
-  jobs:  
+
   - job: Sonnar_Scan
     container: sonarscanner
     steps:
@@ -105,8 +101,7 @@ stages:
         -Dsonar.projectVersion=${CI_PIPELINE_IID} \
         -Dsonar.exclusions=node_modules/** 
       
-- stage:     
-  jobs:      
+    
   - job: Build_docker
     container: kaniko
     steps:
@@ -117,8 +112,7 @@ stages:
         /kaniko/executor -f `pwd`/Dockerfile -c `pwd` --insecure --skip-tls-verify --cache=true --destination=${DOCKER_URL}/${DOCKER_IMAGE}:${DOCKER_TAG}
       
       
-- stage:     
-  jobs:      
+   
   - job: Image_scan_Clair
     container: yair
     continueOnError: 'true'
@@ -140,8 +134,7 @@ stages:
            
       
  
-- stage: 
-  jobs:      
+    
   - job: Sonar_Scan
     container: sonarscanner
     steps:
