@@ -73,9 +73,10 @@ stages:
   - job: build
     container: node
     steps:
-    - script: npm install --only=prod
-    - script: npm install -D express jest
-    - script: npm install -D sonarqube-scanner jest-sonar-reporter supertest
+    - script: | 
+         npm install --only=prod
+         npm install -D express jest
+         npm install -D sonarqube-scanner jest-sonar-reporter supertest
     continueOnError: true  
 
 - stage: Test     
