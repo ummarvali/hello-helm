@@ -60,7 +60,7 @@ resources:
     securityContext: # https://github.com/GoogleContainerTools/kaniko/issues/681
       runAsUser: 0
       runAsGroup: 0
-   
+continueOnError: true   
   
      
 stages:
