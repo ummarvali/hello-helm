@@ -65,7 +65,7 @@ steps:
 - task: DockerInstaller@0
   displayName: 'Install Docker 17.09.0-ce'  
      
-
+jobs:
 - job: build
   container: node
   steps:
