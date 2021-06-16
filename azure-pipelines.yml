@@ -1,60 +1,23 @@
-# Node.js
-# Build a general Node.js project with npm.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
-
-  
-trigger:
-  batch: true
-  branches:
-    include: 
-    -  master
-
-
-pool:
-  name: Azure Pipelines
-  vmImage: ubuntu-20.04
-
-variables:
-  SolutionName: 'Nodejs'
- 
-
 resources:
   containers:
   - container: sonarscanner
     image: sonarsource/sonar-scanner-cli:latest
 
-    securityContext: # https://github.com/GoogleContainerTools/kaniko/issues/681
-      runAsUser: 0
-      runAsGroup: 0
   - container: node
     image: node:14
-    command:
-    - cat
-    tty: true
-    imagePullPolicy: Always
-    securityContext: # https://github.com/GoogleContainerTools/kaniko/issues/681
-      runAsUser: 0
-      runAsGroup: 0
+
   - container: kaniko
     image: gcr.io/kaniko-project/executor:debug-1534f90c9330d40486136b2997e7972a79a69baf
-    imagePullPolicy: Always
-    command:
-    - cat
-    tty: true
-    securityContext: # https://github.com/GoogleContainerTools/kaniko/issues/681
-      runAsUser: 0
-      runAsGroup: 0
+
   - container: openshift-cli
     image: openshift/origin-cli:v3.11.0
-    command:
-    - cat
-    tty: true
-    securityContext: # https://github.com/GoogleContainerTools/kaniko/issues/681
-      runAsUser: 0
-      runAsGroup: 0
- 
-  
+    
+pool: 'Hosted Ubuntu 1604'
+
+variables:
+  buildConfiguration: 'Release'
+  system.debug: true
+
      
 stages:
 - stage: Build
