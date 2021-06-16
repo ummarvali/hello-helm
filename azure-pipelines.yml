@@ -13,7 +13,7 @@ trigger:
 
 pool:
   name: Azure Pipelines
-  vmImage: vs2017-win2016
+  vmImage: ubuntu-20.04
 
 variables:
   SolutionName: 'Nodejs'
