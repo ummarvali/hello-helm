@@ -23,10 +23,7 @@ resources:
   containers:
   - container: sonarscanner
     image: sonarsource/sonar-scanner-cli:latest
-    command:
-    - cat
-    tty: true
-    imagePullPolicy: Always
+
     securityContext: # https://github.com/GoogleContainerTools/kaniko/issues/681
       runAsUser: 0
       runAsGroup: 0
@@ -64,23 +61,24 @@ stages:
   jobs:
   - job: build
     container: node
+
     steps:
-    - script: | 
+    - script: |
          npm install --only=prod
          npm install -D express jest
          npm install -D sonarqube-scanner jest-sonar-reporter supertest
-    continueOnError: true  
+    continueOnError: true
 
-- stage: Test     
-  jobs:  
+- stage: Test
+  jobs:
   - job: Unit_Test
     container: node
     steps:
     - script: CI=true
     - script: npm run test
   
-- stage:     
-  jobs:  
+- stage:
+  jobs:
   - job: Sonnar_Scan
     container: sonarscanner
     steps:
@@ -99,8 +97,8 @@ stages:
         -Dsonar.exclusions=node_modules/** 
   
 
-- stage:     
-  jobs:      
+- stage:
+  jobs:
   - job: Build_docker
     container: kaniko
     steps:
@@ -113,8 +111,8 @@ stages:
       
       
  
-- stage: 
-  jobs:      
+- stage:
+  jobs:
   - job: Sonar_Scan
     container: sonarscanner
     steps:
@@ -132,7 +130,7 @@ stages:
   
   
 - stage: Openshitf
-  jobs:      
+  jobs:
   - job: Deploy_To_Openshift
     container: openshift-cli
     steps:
@@ -159,8 +157,3 @@ stages:
           oc create route edge --service=${K8S_DEPLOYMENT}-svc --hostname=$K8S_DEPLOYMENT.$INGRESS ||true
           oc get route ${K8S_DEPLOYMENT}-svc || true
           oc wait --for=condition=available --timeout=120s deployment/${K8S_DEPLOYMENT} --namespace="${NAMESPACE}" || true
-          
-          
-          
-          
-          
