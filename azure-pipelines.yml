@@ -8,9 +8,8 @@ trigger:
   batch: true
   branches:
     include: 
-    - '*'
+    -  master
 
-pr: none
 
 pool:
   name: Azure Pipelines
