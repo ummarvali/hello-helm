@@ -17,6 +17,19 @@ pool: 'Hosted Ubuntu 1604'
 variables:
   buildConfiguration: 'Release'
   system.debug: true
+  SONARQUBE_URL: https://sonarqube-1749-3725.dc-ig-lib-ga-1589529604-f72ef11f3ab089a8c677044eb28292cd-0000.au-syd.containers.appdomain.cloud
+  NAMESPACE: dc-apps
+  K8S_DEPLOYMENT: spring-java-test
+  DOCKER_URL: us.icr.io/dc-tools
+  REGISTRY_USERNAME: iamapikey
+  REGISTRY_PASSWORD: kdQcmbzIwWpFXrwuug-4Nx4qtogisKML-iGIukTXbI6o
+  DOCKER_IMAGE: nodejs
+  DOCKER_TAG: '${BUILD_BUILDNUMBER}'
+  DOCKER_USERNAME: iamapikey
+  DOCKER_PASSWORD: kdQcmbzIwWpFXrwuug-4Nx4qtogisKML-iGIukTXbI6o
+  INGRESS_URL: dc-ig-l
+  OCP_URL: https://c100-e.au-syd.containers.cloud.ibm.com:31995
+
 
      
 stages:
@@ -51,12 +64,12 @@ stages:
         mkdir .sonar .sonar/cache .scannerwork
         chmod -R 777 .sonar
         chmod -R 777 .scannerwork
-        export SONAR_USER_HOME=${CI_BUILDS_DIR}
+        export SONAR_USER_HOME=${BUILD_ARTIFACTSTAGINGDIRECTORY}
         sonar-scanner \
         -Dsonar.host.url=${SONARQUBE_URL} \
         -Dsonar.projectKey=${NAMESPACE}-${K8S_DEPLOYMENT} \
         -Dsonar.sources=. \
-        -Dsonar.projectVersion=${CI_PIPELINE_IID} \
+        -Dsonar.projectVersion=${BUILD_ID} \
         -Dsonar.exclusions=node_modules/** 
   
 
@@ -86,7 +99,7 @@ stages:
           -Dsonar.scm.provider=git \
           -Dsonar.coverageReportPaths=test-results.xml \
                 -Dsonar.sources=. \
-          -Dsonar.projectVersion=${BRANCH}-${BUILD_NUMBER}
+          -Dsonar.projectVersion=${BUILD_SOURCEBRANCH}-${BUILD_BUILDNUMBER}
   
   
   
