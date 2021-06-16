@@ -9,10 +9,6 @@ trigger:
   branches:
     include: 
     - '*'
-  paths:
-    include:
-    - ummarvali/
-    - hello-helm/azure-pipelines.yml
 
 pr: none
 
