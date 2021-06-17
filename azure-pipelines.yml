@@ -3,7 +3,6 @@ resources:
   - container: sonarscanner
     image: sonarsource/sonar-scanner-cli:latest
     options:  --user vsts_azpcontainer
-    options:  --interactive
   - container: node
     image: node:14
 
