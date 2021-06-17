@@ -2,7 +2,7 @@ resources:
   containers:
   - container: sonarscanner
     image: sonarsource/sonar-scanner-cli:latest
-    options:  --useradd -m -u 1001 vsts_azpcontainer, --tty
+    options:  --user vsts_azpcontainer
   - container: node
     image: node:14
 
