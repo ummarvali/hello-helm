@@ -63,6 +63,11 @@ stages:
         projectKey: 'ms-sonar'
         projectName: sonarbuild
 
+    - task: SonarSource.sonarqube.6D01813A-9589-4B15-8491-8164AEB38055.SonarQubeAnalyze@4
+      displayName: 'Run Code Analysis'
+      continueOnError: true
+    
+
 
 - stage:
   jobs:
