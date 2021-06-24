@@ -1,7 +1,7 @@
 resources:
   containers:
   - container: sonarscanner
-    image: openjdk
+    image:  sonarsource/sonar-scanner-cli
   - container: node
     image: node:14
 
